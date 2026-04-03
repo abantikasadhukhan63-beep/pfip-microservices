@@ -1,0 +1,59 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      # ── Global default filters ────────────────────────────────────────────
+      default-filters:
+        # Propagate the request's host header to downstream services
+        - PreserveHostHeader
+
+      routes:
+        # ── User Service: public auth endpoints (no JWT required) ─────────
+        - id: user-service-auth
+          uri: ${USER_SERVICE_URL:http://localhost:8081}
+          predicates:
+            - Path=/api/auth/**
+
+        # ── User Service: protected user-management endpoints ─────────────
+        - id: user-service-users
+          uri: ${USER_SERVICE_URL:http://localhost:8081}
+          predicates:
+            - Path=/api/users/**
+
+        # ── Transaction Service: all endpoints require JWT ─────────────────
+        - id: transaction-service
+          uri: ${TRANSACTION_SERVICE_URL:http://localhost:8082}
+          predicates:
+            - Path=/api/transactions/**
+
+
+      # ── Global CORS is handled by the CorsConfig bean ───────────────────
+      globalcors:
+        add-to-simple-url-handler-mapping: true
+
+# ── JWT — must match user-service and transaction-service ──────────────────
+jwt:
+  secret: ${JWT_SECRET:YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXo=}
+
+# ── Actuator ────────────────────────────────────────────────────────────────
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+  endpoint:
+    health:
+      show-details: always
+    gateway:
+      enabled: true
+
+logging:
+  level:
+    com.pfip.gateway: DEBUG
+    org.springframework.cloud.gateway: INFO
+    reactor.netty: WARN

@@ -1,0 +1,130 @@
+networks:
+  pfip-net:
+    driver: bridge
+
+volumes:
+  postgres-users-data:
+  postgres-transactions-data:
+
+services:
+
+  postgres-users:
+    image: postgres:16-alpine
+    container_name: pfip-postgres-users
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: pfip_users
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-users-data:/var/lib/postgresql/data
+    networks:
+      - pfip-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d pfip_users"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-transactions:
+    image: postgres:16-alpine
+    container_name: pfip-postgres-transactions
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: pfip_transactions
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-transactions-data:/var/lib/postgresql/data
+    networks:
+      - pfip-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d pfip_transactions"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    container_name: pfip-user-service
+    restart: unless-stopped
+    depends_on:
+      postgres-users:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres-users
+      DB_PORT: 5432
+      DB_NAME: pfip_users
+      DB_USER: admin
+      DB_PASS: admin
+      JWT_SECRET: YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXo=
+      JWT_EXPIRATION: 86400000
+    ports:
+      - "8081:8081"
+    networks:
+      - pfip-net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8081/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  transaction-service:
+    build:
+      context: ./transaction-service
+      dockerfile: Dockerfile
+    container_name: pfip-transaction-service
+    restart: unless-stopped
+    depends_on:
+      postgres-transactions:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres-transactions
+      DB_PORT: 5432
+      DB_NAME: pfip_transactions
+      DB_USER: admin
+      DB_PASS: admin
+      JWT_SECRET: YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXo=
+    ports:
+      - "8082:8082"
+    networks:
+      - pfip-net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8082/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: pfip-api-gateway
+    restart: unless-stopped
+    depends_on:
+      user-service:
+        condition: service_healthy
+      transaction-service:
+        condition: service_healthy
+    environment:
+      USER_SERVICE_URL: http://user-service:8081
+      TRANSACTION_SERVICE_URL: http://transaction-service:8082
+      JWT_SECRET: YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXo=
+    ports:
+      - "8080:8080"
+    networks:
+      - pfip-net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8080/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
