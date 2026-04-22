@@ -31,4 +31,4 @@ management:
 
 logging:
   level:
-    com.pfip.authservice: DEBUG
+    com.pfip.authservice: DEBUGI
