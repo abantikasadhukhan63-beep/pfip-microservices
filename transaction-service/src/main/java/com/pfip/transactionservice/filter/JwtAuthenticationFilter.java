@@ -23,9 +23,6 @@ import java.util.List;
  * The gateway also forwards two convenience headers:
  *   X-User-Id  — the authenticated user's database ID
  *   X-Username — the authenticated user's username
- *
- * This allows downstream services to identify the caller without
- * re-querying the user-service.
  */
 @Slf4j
 @Component
@@ -63,11 +60,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     username = jwtUtil.extractUsername(jwt);
                 }
 
+                String userIdHeader = request.getHeader(USER_ID_HEADER);
+                Long userId = userIdHeader != null ? Long.parseLong(userIdHeader) : null;
+
+                List<String> roles = userService.getRolesByUserId(userId);
+
+                List<SimpleGrantedAuthority> authorities =
+                        roles.stream()
+                                .map(SimpleGrantedAuthority::new)
+                                .toList();
+
                 UsernamePasswordAuthenticationToken auth =
                         new UsernamePasswordAuthenticationToken(
                                 username,
                                 null,
-                                List.of(new SimpleGrantedAuthority("ROLE_USER")));
+                                authorities);
 
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
