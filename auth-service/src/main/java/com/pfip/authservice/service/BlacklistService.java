@@ -16,10 +16,29 @@ public class BlacklistService {
 
     private final RedisTemplate<String, Object> redisTemplate;
 
-    public void blecklistToken (String tokenId, LocalDateTime expiresAt){
+    public void blacklistToken (String tokenId, LocalDateTime expiresAt){
         Duration ttl = Duration.between(LocalDateTime.now(), expiresAt);
         if (ttl.isNegative() || ttl.isZero()) return; //already expired hence blackListed
 
         String key = CacheConfig.BLACKLIST_KEY_PREFIX + tokenId;
+        redisTemplate.opsForValue().set(key, "blacklisted", ttl);
+        log.info("Token blacklisted: {}, TTL: {}s", tokenId, ttl.getSeconds());
+    }
+
+    /**
+     * Check if a token ID is already blacklisted.
+     * This is called on every validation.
+     */
+
+    public boolean isBlacklisted(String tokenId){
+        if (tokenId == null) return false;
+        String key = CacheConfig.BLACKLIST_KEY_PREFIX + tokenId;
+        try {
+            return Boolean.TRUE.equals(redisTemplate.hasKey(key));
+        }
+        catch (Exception e){
+            log.error("Redis unavailable for blacklist check - failing open: {}", e.getMessage());
+            return false;
+        }
     }
 }
