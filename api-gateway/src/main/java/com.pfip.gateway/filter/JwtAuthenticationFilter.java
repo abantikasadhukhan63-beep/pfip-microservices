@@ -61,10 +61,11 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         }
 
         String username = jwtUtil.extractUsername(token);
+        String userId = jwtUtil.extractUserId(token);
 
         ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
                 .header(USERNAME_HEADER, username)
-                .header(USER_ID_HEADER, "0")
+                .header(USER_ID_HEADER, userId)
                 .build();
 
         log.debug("Gateway forwarding authenticated request for user '{}' to {}",
