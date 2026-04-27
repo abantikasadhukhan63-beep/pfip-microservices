@@ -43,7 +43,7 @@ public class JwtUtil {
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
-    public String extractuserId(String token) {
+    public String extractUserId(String token) {
         return extractClaim(token, claims -> String.valueOf(claims.get("userId")));
     }
 
