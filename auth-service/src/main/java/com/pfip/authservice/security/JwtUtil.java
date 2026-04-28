@@ -13,6 +13,9 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.function.Function;
 
+/**
+ * Token validation point
+ */
 @Slf4j
 @Component
 public class JwtUtil {
