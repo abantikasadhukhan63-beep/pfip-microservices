@@ -26,6 +26,7 @@ public class CacheConfig {
 
     public static final String CAFFEINE_CACHE = "caffeineTokenCache";
     public static final String BLACKLIST_KEY_PREFIX = "blacklist:";
+    public static final String TOKEN_CACHE_KEY_PREFIX = "token:";
 
     @Bean
     @Primary
