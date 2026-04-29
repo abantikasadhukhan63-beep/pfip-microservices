@@ -1,4 +1,4 @@
-package com.pfip.authservice.dto;
+package com.pfip.common.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

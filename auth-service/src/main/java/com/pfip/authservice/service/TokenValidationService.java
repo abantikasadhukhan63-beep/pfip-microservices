@@ -1,8 +1,8 @@
 package com.pfip.authservice.service;
 
 import com.pfip.authservice.config.CacheConfig;
-import com.pfip.authservice.dto.ValidationResponse;
 import com.pfip.authservice.security.JwtUtil;
+import com.pfip.common.dto.ValidationResponse;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.pfip.authservice.dto;
+package com.pfip.common.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

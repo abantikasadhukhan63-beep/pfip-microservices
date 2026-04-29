@@ -1,12 +1,12 @@
 package com.pfip.authservice.controller;
 
 import com.pfip.authservice.dto.LogoutRequest;
-import com.pfip.authservice.dto.ValidationRequest;
-import com.pfip.authservice.dto.ValidationResponse;
 import com.pfip.authservice.security.JwtUtil;
 import com.pfip.authservice.service.BlacklistService;
 import com.pfip.authservice.service.TokenValidationService;
 import com.pfip.common.dto.ApiResponse;
+import com.pfip.common.dto.ValidationRequest;
+import com.pfip.common.dto.ValidationResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
