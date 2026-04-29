@@ -9,6 +9,10 @@
     <packaging>jar</packaging>
     <name>api-gateway</name>
     <dependencies>
+        <dependency>
+            <groupId>com.pfip</groupId>
+            <artifactId>common</artifactId>
+        </dependency>
         <!--  Spring Cloud Gateway (WebFlux / reactive)  -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>

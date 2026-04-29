@@ -110,6 +110,8 @@ services:
     container_name: pfip-api-gateway
     restart: unless-stopped
     depends_on:
+      auth-service:
+        condition: service_healthy
       user-service:
         condition: service_healthy
       transaction-service:
@@ -117,6 +119,7 @@ services:
     environment:
       USER_SERVICE_URL: http://user-service:8081
       TRANSACTION_SERVICE_URL: http://transaction-service:8082
+      AUTH_SERVICE_URL: http://auth-service:8083
       JWT_SECRET: YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXo=
     ports:
       - "8080:8080"
