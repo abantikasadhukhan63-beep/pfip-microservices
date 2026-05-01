@@ -60,21 +60,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     username = jwtUtil.extractUsername(jwt);
                 }
 
-                String userIdHeader = request.getHeader(USER_ID_HEADER);
-                Long userId = userIdHeader != null ? Long.parseLong(userIdHeader) : null;
-
-                List<String> roles = userService.getRolesByUserId(userId);
-
-                List<SimpleGrantedAuthority> authorities =
-                        roles.stream()
-                                .map(SimpleGrantedAuthority::new)
-                                .toList();
-
                 UsernamePasswordAuthenticationToken auth =
                         new UsernamePasswordAuthenticationToken(
                                 username,
-                                null,
-                                authorities);
+                                null);
 
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }

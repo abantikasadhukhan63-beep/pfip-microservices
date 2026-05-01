@@ -42,10 +42,6 @@ public class User {
     @Column(name = "last_name", length = 50)
     private String lastName;
 
-    @Enumerated(EnumType.STRING)
-    @Builder.Default
-    private Role role = Role.USER;
-
     @Column(nullable = false)
     @Builder.Default
     private boolean enabled = true;

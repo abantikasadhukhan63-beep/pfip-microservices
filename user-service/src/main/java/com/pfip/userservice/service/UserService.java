@@ -34,7 +34,6 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    @PreAuthorize("hasRole('ADMIN')")
     public List<AuthDtos.UserDto> getAllUsers() {
         return userRepository.findAll().stream()
                 .map(this::toDto)
@@ -42,7 +41,6 @@ public class UserService {
     }
 
     @Transactional
-    @PreAuthorize("hasRole('ADMIN')")
     public void toggleUserEnabled(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
@@ -58,7 +56,6 @@ public class UserService {
                 .email(user.getEmail())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
-                .role(user.getRole().name())
                 .enabled(user.isEnabled())
                 .build();
     }
