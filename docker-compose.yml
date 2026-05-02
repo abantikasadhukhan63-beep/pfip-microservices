@@ -102,12 +102,15 @@ services:
     depends_on:
       postgres-transactions:
         condition: service_healthy
+      auth-service:
+        condition: service_healthy
     environment:
       DB_HOST: postgres-transactions
       DB_PORT: 5432
       DB_NAME: pfip_transactions
       DB_USER: admin
       DB_PASS: admin
+      AUTH_SERVICE_URL: http://auth-service:8083
       JWT_SECRET: YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXo=
     ports:
       - "8082:8082"

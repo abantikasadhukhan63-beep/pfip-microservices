@@ -1,6 +1,7 @@
 package com.pfip.transactionservice.filter;
 
-import com.pfip.transactionservice.security.JwtUtil;
+import com.pfip.common.dto.ValidationResponse;
+import com.pfip.transactionservice.client.AuthServiceClient;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,24 +17,15 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * Validates the JWT coming from the API Gateway.
- *
- * The gateway also forwards two convenience headers:
- *   X-User-Id  — the authenticated user's database ID
- *   X-Username — the authenticated user's username
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private static final String BEARER_PREFIX  = "Bearer ";
-    private static final String AUTH_HEADER    = "Authorization";
-    private static final String USER_ID_HEADER = "X-User-Id";
-    private static final String USERNAME_HEADER = "X-Username";
+    private static final String BEARER_PREFIX   = "Bearer ";
+    private static final String AUTH_HEADER     = "Authorization";
 
-    private final JwtUtil jwtUtil;
+    private final AuthServiceClient authServiceClient;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
@@ -48,26 +40,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        final String jwt = authHeader.substring(BEARER_PREFIX.length());
+        final String token = authHeader.substring(BEARER_PREFIX.length());
 
         try {
-            if (jwtUtil.validateToken(jwt) &&
-                    SecurityContextHolder.getContext().getAuthentication() == null) {
+            ValidationResponse validation = authServiceClient.validate(token);
 
-                String username = request.getHeader(USERNAME_HEADER);
-                if (username == null) {
-                    username = jwtUtil.extractUsername(jwt);
-                }
+            if (validation != null && validation.isValid() &&
+                    SecurityContextHolder.getContext().getAuthentication() == null) {
 
                 UsernamePasswordAuthenticationToken auth =
                         new UsernamePasswordAuthenticationToken(
-                                username,
+                                validation.getUsername(),
                                 null);
 
+                auth.setDetails(validation.getUserId());
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
         } catch (Exception e) {
-            log.error("JWT authentication failed: {}", e.getMessage());
+            log.error("Authentication failed in transaction-service: {}", e.getMessage());
         }
 
         chain.doFilter(request, response);
