@@ -58,25 +58,6 @@ public class JwtUtil {
         }
     }
 
-    public boolean validateToken(String token) {
-        try {
-            Jwts.parser()
-                    .verifyWith(getSigningKey())
-                    .build()
-                    .parseSignedClaims(token);
-            return true;
-        } catch (ExpiredJwtException e) {
-            log.warn("JWT expired: {}", e.getMessage());
-        } catch (UnsupportedJwtException e) {
-            log.warn("JWT unsupported: {}", e.getMessage());
-        } catch (MalformedJwtException e) {
-            log.warn("JWT malformed: {}", e.getMessage());
-        } catch (JwtException e) {
-            log.warn("JWT invalid: {}", e.getMessage());
-        }
-        return false;
-    }
-
     // ── Claims extraction ──────────────────────────────────────────────────────
 
     public String extractUsername(String token) {

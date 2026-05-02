@@ -57,6 +57,8 @@ services:
     depends_on:
       postgres-users:
         condition: service_healthy
+      auth-service:
+        condition: service_healthy
     environment:
       DB_HOST: postgres-users
       DB_PORT: 5432
@@ -65,6 +67,7 @@ services:
       DB_PASS: admin
       JWT_SECRET: YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXo=
       JWT_EXPIRATION: 86400000
+      AUTH_SERVICE_URL: http://auth-service:8083
     ports:
       - "8081:8081"
     networks:

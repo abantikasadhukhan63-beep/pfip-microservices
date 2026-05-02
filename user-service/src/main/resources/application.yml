@@ -7,6 +7,10 @@ spring:
   application:
     name: user-service
 
+  auth:
+    service:
+      url: ${AUTH_SERVICE_URL:http://localhost:8083}
+
   datasource:
     url: jdbc:postgresql://${DB_HOST:postgres-users}:${DB_PORT:5432}/${DB_NAME:pfip_users}
     username: ${DB_USER:admin}

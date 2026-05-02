@@ -15,6 +15,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -47,7 +50,9 @@ public class AuthService {
         log.info("Registered new user: {}", saved.getUsername());
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(saved.getUsername());
-        String token = jwtUtil.generateToken(userDetails);
+        Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("userId", saved.getId());
+        String token = jwtUtil.generateToken(extraClaims, userDetails);
 
         return buildAuthResponse(token, saved);
     }
