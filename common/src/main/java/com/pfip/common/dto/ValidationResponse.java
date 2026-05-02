@@ -18,7 +18,6 @@ public class ValidationResponse {
     private boolean valid;
     private Long userId;
     private String username;
-    private String role;
     private LocalDateTime expiresAt;
     private String reason; // populated when valid=false
 }
