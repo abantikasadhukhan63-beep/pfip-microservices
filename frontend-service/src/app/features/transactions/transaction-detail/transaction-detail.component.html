@@ -1,0 +1,78 @@
+<div class="space-y-6 max-w-3xl mx-auto">
+  <div class="flex items-center space-x-4">
+    <a routerLink="/transactions" mat-icon-button class="bg-white shadow-sm border border-gray-200">
+      <mat-icon>arrow_back</mat-icon>
+    </a>
+    <h2 class="text-3xl font-bold text-gray-900">Transaction Details</h2>
+  </div>
+
+  <div *ngIf="isLoading" class="flex justify-center p-12">
+    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+  </div>
+
+  <mat-card *ngIf="!isLoading && transaction" class="rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+    <!-- Header -->
+    <div class="p-8 text-center bg-gray-50 border-b border-gray-100">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 shadow-sm"
+           [ngClass]="{'bg-green-100 text-green-600': transaction.type === 'DEPOSIT', 'bg-red-100 text-red-600': transaction.type === 'WITHDRAWAL', 'bg-blue-100 text-blue-600': transaction.type === 'TRANSFER'}">
+        <mat-icon class="scale-150">
+          {{ transaction.type === 'DEPOSIT' ? 'arrow_downward' : transaction.type === 'WITHDRAWAL' ? 'arrow_upward' : 'swap_horiz' }}
+        </mat-icon>
+      </div>
+      <h3 class="text-5xl font-extrabold text-gray-900 mb-2">
+        <span [ngClass]="{'text-green-600': transaction.type === 'DEPOSIT', 'text-gray-900': transaction.type !== 'DEPOSIT'}">
+          {{ transaction.type === 'DEPOSIT' ? '+' : '' }}${{ transaction.amount | number:'1.2-2' }}
+        </span>
+      </h3>
+      <div class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium" [ngClass]="getStatusColor(transaction.status)">
+        {{ transaction.status }}
+      </div>
+    </div>
+
+    <!-- Details -->
+    <div class="p-8 space-y-6">
+      <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Transaction Info</h4>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <p class="text-sm text-gray-500 mb-1">Reference Number</p>
+          <p class="font-medium text-gray-900">{{ transaction.referenceNumber || 'N/A' }}</p>
+        </div>
+        <div>
+          <p class="text-sm text-gray-500 mb-1">Date & Time</p>
+          <p class="font-medium text-gray-900">{{ transaction.createdAt | date:'medium' }}</p>
+        </div>
+        <div>
+          <p class="text-sm text-gray-500 mb-1">Transaction Type</p>
+          <p class="font-medium text-gray-900">{{ transaction.type }}</p>
+        </div>
+        <div>
+          <p class="text-sm text-gray-500 mb-1">Currency</p>
+          <p class="font-medium text-gray-900">{{ transaction.currency || 'USD' }}</p>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div>
+        <p class="text-sm text-gray-500 mb-1">Description</p>
+        <p class="font-medium text-gray-900 bg-gray-50 p-4 rounded-lg border border-gray-100">
+          {{ transaction.description || 'No description provided.' }}
+        </p>
+      </div>
+      
+      <div class="flex justify-end mt-8">
+        <button mat-stroked-button color="primary">
+          <mat-icon>receipt</mat-icon> Download Receipt
+        </button>
+      </div>
+    </div>
+  </mat-card>
+
+  <mat-card *ngIf="!isLoading && !transaction" class="p-12 text-center border border-gray-200 shadow-sm rounded-2xl">
+    <mat-icon class="text-6xl text-gray-300 mb-4 block mx-auto">error_outline</mat-icon>
+    <h3 class="text-xl font-bold text-gray-900 mb-2">Transaction Not Found</h3>
+    <p class="text-gray-500 mb-6">The transaction you're looking for doesn't exist or you don't have access.</p>
+    <a routerLink="/transactions" mat-flat-button color="primary">Back to History</a>
+  </mat-card>
+</div>

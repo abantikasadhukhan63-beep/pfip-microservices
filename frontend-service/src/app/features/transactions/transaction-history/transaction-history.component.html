@@ -1,0 +1,106 @@
+<div class="space-y-6">
+  <div class="flex items-center justify-between">
+    <h2 class="text-3xl font-bold text-gray-900">Transaction History</h2>
+    <button mat-flat-button color="primary" class="rounded-lg shadow-md">
+      <mat-icon>add</mat-icon> New Transaction
+    </button>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+    <div class="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+      <mat-form-field appearance="outline" class="w-72 mt-2">
+        <mat-label>Search transactions</mat-label>
+        <input matInput placeholder="Ex. TXN-123">
+        <mat-icon matPrefix class="text-gray-400">search</mat-icon>
+      </mat-form-field>
+      <button mat-stroked-button class="rounded-lg">
+        <mat-icon>filter_list</mat-icon> Filter
+      </button>
+    </div>
+
+    <div *ngIf="isLoading" class="flex justify-center p-12">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+    </div>
+
+    <div class="overflow-x-auto" *ngIf="!isLoading">
+      <table mat-table [dataSource]="dataSource" class="w-full">
+        
+        <!-- ID Column -->
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef class="font-semibold text-gray-600">Ref ID</th>
+          <td mat-cell *matCellDef="let element" class="font-medium text-gray-900">#{{ element.id }}</td>
+        </ng-container>
+
+        <!-- Type Column -->
+        <ng-container matColumnDef="type">
+          <th mat-header-cell *matHeaderCellDef class="font-semibold text-gray-600">Type</th>
+          <td mat-cell *matCellDef="let element">
+            <div class="flex items-center">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center mr-3"
+                   [ngClass]="{'bg-green-100 text-green-600': element.type === 'DEPOSIT', 'bg-red-100 text-red-600': element.type === 'WITHDRAWAL', 'bg-blue-100 text-blue-600': element.type === 'TRANSFER'}">
+                <mat-icon class="text-[18px] w-[18px] h-[18px] leading-none">{{ getTypeIcon(element.type) }}</mat-icon>
+              </div>
+              <span class="font-medium">{{ element.type }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Amount Column -->
+        <ng-container matColumnDef="amount">
+          <th mat-header-cell *matHeaderCellDef class="font-semibold text-gray-600">Amount</th>
+          <td mat-cell *matCellDef="let element" class="font-bold text-gray-900">
+            <span [ngClass]="{'text-green-600': element.type === 'DEPOSIT', 'text-gray-900': element.type !== 'DEPOSIT'}">
+              {{ element.type === 'DEPOSIT' ? '+' : '' }}${{ element.amount | number:'1.2-2' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Status Column -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef class="font-semibold text-gray-600">Status</th>
+          <td mat-cell *matCellDef="let element">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" [ngClass]="getStatusColor(element.status)">
+              {{ element.status }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Date Column -->
+        <ng-container matColumnDef="createdAt">
+          <th mat-header-cell *matHeaderCellDef class="font-semibold text-gray-600">Date</th>
+          <td mat-cell *matCellDef="let element" class="text-gray-500">
+            {{ element.createdAt | date:'mediumDate' }}
+          </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef class="text-right"></th>
+          <td mat-cell *matCellDef="let element" class="text-right">
+            <a [routerLink]="['/transactions', element.id]" mat-icon-button color="primary" matTooltip="View Details">
+              <mat-icon>chevron_right</mat-icon>
+            </a>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="hover:bg-gray-50 transition-colors"></tr>
+        
+        <!-- Empty State -->
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell p-8 text-center text-gray-500" colspan="6">
+            <mat-icon class="text-4xl mb-2 text-gray-300">receipt_long</mat-icon>
+            <p>No transactions found</p>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <mat-paginator [length]="totalElements"
+                   [pageSize]="pageSize"
+                   [pageSizeOptions]="[5, 10, 25, 100]"
+                   (page)="onPageChange($event)"
+                   class="border-t border-gray-200">
+    </mat-paginator>
+  </div>
+</div>

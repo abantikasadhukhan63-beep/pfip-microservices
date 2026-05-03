@@ -175,3 +175,17 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+
+      frontend:
+        build:
+          context: ./frontend-service
+          dockerfile: Dockerfile
+        container_name: pfip-frontend
+        restart: unless-stopped
+        depends_on:
+          api-gateway:
+            condition: service_healthy
+        ports:
+          - "4200:80"
+        networks:
+          - pfip-net
