@@ -14,8 +14,8 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_DB: pfip_users
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
+      POSTGRES_USER: #[DB username]
+      POSTGRES_PASSWORD: #[DB password]
     ports:
       - "5432:5432"
     volumes:
@@ -34,8 +34,8 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_DB: pfip_transactions
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
+      POSTGRES_USER: #[DB username]
+      POSTGRES_PASSWORD: #[DB password]
     ports:
       - "5433:5432"
     volumes:
@@ -77,8 +77,8 @@ services:
       DB_HOST: postgres-users
       DB_PORT: 5432
       DB_NAME: pfip_users
-      DB_USER: admin
-      DB_PASS: admin
+      DB_USER: #[DB username]
+      DB_PASS: #[DB password]
       JWT_SECRET: YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXo=
       JWT_EXPIRATION: 86400000
       AUTH_SERVICE_URL: http://auth-service:8083
@@ -108,8 +108,8 @@ services:
       DB_HOST: postgres-transactions
       DB_PORT: 5432
       DB_NAME: pfip_transactions
-      DB_USER: admin
-      DB_PASS: admin
+      DB_USER: #[DB username]
+      DB_PASS: #[DB password]
       AUTH_SERVICE_URL: http://auth-service:8083
       JWT_SECRET: YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXo=
     ports:
@@ -155,13 +155,15 @@ services:
   auth-service:
     build:
       context: ./auth-service
-      dockerfile: Dockerfile
+      dockerfile: DockerFile
     container_name: pfip-auth-service
     restart: unless-stopped
     depends_on:
       redis:
         condition: service_healthy
     environment:
+      USER_SERVICE_URL: http://user-service:8081
+      TRANSACTION_SERVICE_URL: http://transaction-service:8082
       JWT_SECRET: YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXo=
       REDIS_HOST: redis
       REDIS_PORT: 6379
@@ -176,16 +178,16 @@ services:
       retries: 5
       start_period: 30s
 
-      frontend:
-        build:
-          context: ./frontend-service
-          dockerfile: Dockerfile
-        container_name: pfip-frontend
-        restart: unless-stopped
-        depends_on:
-          api-gateway:
-            condition: service_healthy
-        ports:
-          - "4200:80"
-        networks:
-          - pfip-net
+  frontend-service:
+    build:
+      context: ./frontend-service
+      dockerfile: Dockerfile
+    container_name: pfip-frontend-service
+    restart: unless-stopped
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+    ports:
+      - "4200:80"
+    networks:
+      - pfip-net

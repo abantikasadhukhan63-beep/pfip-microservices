@@ -109,7 +109,6 @@ public class TokenValidationService {
                     .valid(true)
                     .userId(userId)
                     .username(username)
-                    .role(role)
                     .expiresAt(exp)
                     .build();
 

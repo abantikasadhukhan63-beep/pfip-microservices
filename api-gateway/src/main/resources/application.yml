@@ -31,13 +31,15 @@ spring:
           predicates:
             - Path=/api/transactions/**
 
+        - id: auth-service
+          uri: ${AUTH_SERVICE_URL:http://localhost:8083}
+          predicates:
+            - Path=/api/authentication/**
+
       # ── Global CORS is handled by the CorsConfig bean ───────────────────
       globalcors:
         add-to-simple-url-handler-mapping: true
 
-    auth:
-      service:
-        url: ${AUTH_SERVICE_URL:http://localhost:8083}
 
 # ── JWT — must match user-service and transaction-service ──────────────────
 jwt:
